@@ -67,7 +67,7 @@ Subprog MODIF_DETAIL(CRIT, SCRIPT, SCRIPTID)
       # prevent double line nums
       # TODO: check if this is ok
       While find([M]LIN(nolign-1),[M]LIN(0..(nolign-2))) or find([M]LIN(nolign-1),[M]LIN((nolign)..([M]NBLIG-1)))
-        [M]LIN += 10
+        [M]LIN(nolign-1) += 10
       Wend
 
       Raz [F]
