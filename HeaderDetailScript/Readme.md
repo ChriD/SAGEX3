@@ -46,16 +46,11 @@ INIT_FIELDS(SCRIPTID)*
 
 $ACTION
   Case ACTION
-   When "LIENS"       : Gosub $SET_DEFAULT
-                        Call LIENS_DETAIL(func GET_PKRANGE(), 'SPEHEADERSCRIPT', '1') From SPEFWIHEADERDETAIL                     
-   When "CREATION"    : Gosub $SET_DEFAULT
-                        Call CREATION_DETAIL('SPEHEADERSCRIPT', '1') From SPEFWIHEADERDETAIL                     
-   When "MODIF"       : Gosub $SET_DEFAULT
-                        Call MODIF_DETAIL(func GET_PKRANGE(), 'SPEHEADERSCRIPT', '1') From SPEFWIHEADERDETAIL                     
-   When "ANNULE"      : Gosub $SET_DEFAULT
-                        Call ANNULE_DETAIL(func GET_PKRANGE(), 'SPEHEADERSCRIPT', '1') From SPEFWIHEADERDETAIL                    
-   When "APRES_MODIF" : Gosub $SET_DEFAULT
-                        Call APRES_MODIF_DETAIL() From SPEFWIHEADERDETAIL                       
+   When "LIENS"       : Gosub $SET_DEFAULT : Call LIENS_DETAIL(func GET_PKRANGE(), 'SPEHEADERSCRIPT', '1') From SPEFWIHEADERDETAIL   
+   When "CREATION"    : Gosub $SET_DEFAULT : Call CREATION_DETAIL('SPEHEADERSCRIPT', '1') From SPEFWIHEADERDETAIL                     
+   When "MODIF"       : Gosub $SET_DEFAULT : Call MODIF_DETAIL(func GET_PKRANGE(), 'SPEHEADERSCRIPT', '1') From SPEFWIHEADERDETAIL    
+   When "ANNULE"      : Gosub $SET_DEFAULT : Call ANNULE_DETAIL(func GET_PKRANGE(), 'SPEHEADERSCRIPT', '1') From SPEFWIHEADERDETAIL   
+   When "APRES_MODIF" : Gosub $SET_DEFAULT : Call APRES_MODIF_DETAIL() From SPEFWIHEADERDETAIL                       
    When Default
   Endcase
 Return
@@ -109,6 +104,8 @@ Return
 
 Subprog INIT_FIELDS(SCRIPTID)
   Value Char SCRIPTID
+  # due all of the details have the same pk link to the header, there is no need to check the SCRIPTID value
+  # but you could do: If SCRIPTID = "1" : ... : Endif
   [F]BPRNUM = [M:HEADERSCREEN]BPRNUM
 End
 
