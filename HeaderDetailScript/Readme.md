@@ -13,12 +13,12 @@ APRES_MODIF --> Call APRES_MODIF_DETAIL() From SPEFWIHEADERDETAIL
 due the script uses the default files and masks we have to add  
 Default Mask [DETAILSCREEN]  
 Default File [DETAILFILE]  
-before each call of a script subprog (see example below)
+before each call of a subprog from the Header-Detail script (see example below)
 
 The Parameters of the subprogs (if they have one) are:
-PARM1 (char) --> the header-detail link (range the detail)
-PARM2 (char) --> the name of a script where the "callback" subprogs are triggered (see callback subprogs)
-PARM3 (char) --> a identifier for the callback subprogs (used if you have more than one detail in
+PARM1 (char) --> the header-detail link (range the detail)  
+PARM2 (char) --> the name of a script where the "callback" subprogs are triggered (see callback subprogs)  
+PARM3 (char) --> a identifier for the callback subprogs (used if you have more than one detail in a script)
 
 #### Callback subprogs
 
