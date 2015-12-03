@@ -4,28 +4,62 @@ I'm new to SAGE X3 and therfore there might be better solutions so please excuse
 
 #### Info
 To use the script you have to call it from some actions:  
+```
 LIENS       --> Call LIENS_DETAIL(PARM1, PARM2, PARM3) From SPEFWIHEADERDETAIL  
 CREATION    --> Call CREATION_DETAIL(PARM2, PARM3) From SPEFWIHEADERDETAIL  
 MODIF       --> Call MODIF_DETAIL(PARM1, PARM2, PARM3) From SPEFWIHEADERDETAIL   
 ANNULE      --> Call ANNULE_DETAIL(PARM1, PARM2, PARM3) From SPEFWIHEADERDETAIL  
 APRES_MODIF --> Call APRES_MODIF_DETAIL() From SPEFWIHEADERDETAIL 
+```
 
-due the script uses the default files and masks we have to add  
+due the script uses the default files and masks we have to add   
+```
 Default Mask [DETAILSCREEN]  
 Default File [DETAILFILE]  
+```
 before each call of a subprog from the Header-Detail script (see example below)
 
-The Parameters of the subprogs (if they have one) are:
+The Parameters of the subprogs (if they have one) are:  
+```
 PARM1 (char) --> the header-detail link (range the detail)  
 PARM2 (char) --> the name of a script where the "callback" subprogs are triggered (see callback subprogs)  
 PARM3 (char) --> a identifier for the callback subprogs (used if you have more than one detail in a script)
+```
 
 #### Callback subprogs
 
 
 #### Example of using with one detail
 (For one Detail i'd suggest you to use the TABLEAUX Script because its better maintained)
+```
+# SCRIPT: SPEHEADERSCRIPT
 
+$ACTION
+  Case ACTION
+   When "LIENS"       : Gosub $SET_DEFAULT
+                        Call LIENS_DETAIL('BPRNUM="'+[M:HEADERSCREEN]BPRNUM+'"', 'SPEHEADERSCRIPT', '1') From SPEFWIHEADERDETAIL                     
+   When "CREATION"    : Gosub $SET_DEFAULT
+                        Call CREATION_DETAIL('SPEHEADERSCRIPT', '1') From SPEFWIHEADERDETAIL                     
+   When "MODIF"       : Gosub $SET_DEFAULT
+                        Call MODIF_DETAIL('BPRNUM="'+[M:HEADERSCREEN]BPRNUM+'"', 'SPEHEADERSCRIPT', '1') From SPEFWIHEADERDETAIL                     
+   When "ANNULE"      : Gosub $SET_DEFAULT
+                        Call ANNULE_DETAIL('BPRNUM="'+[M:HEADERSCREEN]BPRNUM+'"', 'SPEHEADERSCRIPT', '1') From SPEFWIHEADERDETAIL                    
+   When "APRES_MODIF" : Gosub $SET_DEFAULT
+                        Call APRES_MODIF_DETAIL() From SPEFWIHEADERDETAIL                       
+   When Default
+  Endcase
+Return
+
+$SET_DEFAULT
+  Default Mask [XEARAMP1]
+  Default File [XEARAIG]
+Return
+
+Subprog INIT_FIELDS(SCRIPTID)
+  Value Char SCRIPTID
+  [F]BPRNUM = [M:HEADERSCREEN]BPRNUM
+End
+```
 
 #### Example of using with two details with a script for each detail 
 
