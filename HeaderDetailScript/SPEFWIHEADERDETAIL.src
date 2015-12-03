@@ -1,0 +1,257 @@
+# SPEFWIHEADERDETAIL
+# FWI DUCH 23.06.2015 - Common code
+# This script is used to handle objects with more than one detail (1 header, n details)
+
+# TODO: Line num initialisation is done as in the TABLEAUX Script. But this may lead to duplicate lineNum values (if not ordered by lineNum)
+#       This is bad because our deletion insists that the LineNum on the Detail Table is unique.
+#       Either we have to change the LineNum initialization or the deletion stuff. I tried to use the unique
+#       record Id "AUUID" but this raise "not valid types" exceptions on "find" method
+#       14.07.2015 UPDATE: I have added some code to prevent double line nums. I have to test and check this
+#
+#       Check if SubProgs are available in given script so we may not get an error if not defined.
+#       But i think the check is not possible in X3V7
+#       07.07.2015 UPDATE: I've found a solution for this using 'onerrgo'. Its not the best one but for now i have no other idea
+
+#########################################################################
+## liens
+#########################################################################
+Subprog LIENS_DETAIL(CRIT, SCRIPT, SCRIPTID)
+  Value Char CRIT
+  Value Char SCRIPT
+  Value Char SCRIPTID
+
+  nolign = 0
+  For [F] Where evalue(CRIT)
+    If nolign>=dim([M]UPDFLG)
+      Break
+    Endif
+    nolign += 1
+    [M] = [F] 
+    [M]UPDFLG(nolign-1) = 0
+    [M]CREFLG(nolign-1) = nolign
+    Call POST_LIENS(SCRIPT, SCRIPTID) From SPEFWIHEADERDETAIL
+  Next
+  [M]NBLIG = nolign
+
+  # after modification we do sort the detail by line num
+  Gosub SORT
+
+End
+
+
+#########################################################################
+## modification
+#########################################################################
+Subprog MODIF_DETAIL(CRIT, SCRIPT, SCRIPTID)
+  Value Char CRIT
+  Value Char SCRIPT
+  Value Char SCRIPTID
+  Local Integer DN : DN = 1
+
+  # we run through the table for the specific criteria (Header PK) and check with "find" if value is in mask
+  # if it's not in mask we have to delete the record
+  For [F] Where evalue(CRIT)
+    If !find([F]LIN,[M]LIN(0..[M]NBLIG-1))
+      Delete [F]
+      If fstat=1 : GOK=-1 : GLOCK = "$"+SCRIPTID-num$(nolign) : Break: Endif
+      Call POST_DELETE(SCRIPT, SCRIPTID) From SPEFWIHEADERDETAIL
+    Endif
+  Next
+
+  # we check the created ones. Those are ones where the creation flags (CREFLAG) are "0"
+  # we check the modified ones. Those are ones where the update flags (UPDFLAG) are "!0"
+  For nolign=1 To [M]NBLIG
+    If [M]CREFLG(nolign-1)= 0
+
+      # prevent double line nums
+      # TODO: check if this is ok
+      While find([M]LIN(nolign-1),[M]LIN(0..(nolign-2))) or find([M]LIN(nolign-1),[M]LIN((nolign)..([M]NBLIG-1)))
+        [M]LIN += 10
+      Wend
+
+      Raz [F]
+      [F] = [M]
+      # Call a subprog in a specific script so the user can fill in the primary fields for the table
+      # we give a "SCRIPTID" as parameter so we can handle more than one detail
+      Call INIT_FIELDS(SCRIPT, SCRIPTID) From SPEFWIHEADERDETAIL
+      Call VALIDATE_WRITE(SCRIPT, SCRIPTID) From SPEFWIHEADERDETAIL
+      Write
+      If fstat : GOK=0 : Call FSTA(SCRIPTID) From GLOCK : Break : Endif
+      Call POST_CREATE(SCRIPT, SCRIPTID) From SPEFWIHEADERDETAIL
+    Elsif [M]UPDFLG(nolign-1) <> 0
+      # we do lock the record we want to update by filtering with PK Criteria and then do a "readlock"
+      Filter [F] Where evalue(CRIT) & [F]LIN = [M]LIN(nolign-1)
+      Readlock First
+      Filter [F]
+      # when the record is already locked we will get an error which we will view to the user
+      If fstat=1 : GOK=-1 : GLOCK = "$"+SCRIPTID-num$(nolign) : Break : Endif
+      [F] = [M]
+      Call VALIDATE_WRITE(SCRIPT, SCRIPTID) From SPEFWIHEADERDETAIL
+      Rewrite
+      # when a record already exists or when any other error occurs we will view the error to the user
+      If fstat : GOK=0 : Call FSTA(SCRIPTID) From GLOCK : Break : Endif
+    Endif
+
+  Next nolign
+
+  # after modification we do sort the detail by line num
+  Gosub SORT
+
+End
+
+
+#########################################################################
+## creation
+#########################################################################
+Subprog CREATION_DETAIL(SCRIPT, SCRIPTID)
+  Value Char SCRIPT
+  Value Char SCRIPTID
+
+  For nolign=1 To [M]NBLIG
+    Raz [F]
+    [F] = [M]
+    [F]LIN = 1000*nolign
+    Call INIT_FIELDS(SCRIPT, SCRIPTID) From SPEFWIHEADERDETAIL
+    Call VALIDATE_WRITE(SCRIPT, SCRIPTID) From SPEFWIHEADERDETAIL
+    Write
+    If fstat=1 : GOK=-1 : GLOCK = "$"+SCRIPTID-num$(nolign) : Break : Endif
+    Call POST_CREATE(SCRIPT, SCRIPTID) From SPEFWIHEADERDETAIL
+  Next nolign
+
+End
+
+
+#########################################################################
+## Annule
+#########################################################################
+Subprog ANNULE_DETAIL(CRIT,SCRIPT, SCRIPTID)
+  Value Char CRIT
+  Value Char SCRIPT
+  Value Char SCRIPTID
+
+  #Delete [F] Where evalue(CRIT)
+  #If fstat=1 : GOK=-1 : GLOCK = "$"+SCRIPTID-num$(nolign) : Endif
+  For [F] Where evalue(CRIT)
+    Delete [F]
+    If fstat=1 : GOK=-1 : GLOCK = "$"+SCRIPTID-num$(nolign) : Break: Endif
+    Call POST_DELETE(SCRIPT, SCRIPTID) From SPEFWIHEADERDETAIL
+  Next
+End
+
+
+#########################################################################
+## Sorting
+#########################################################################
+$SORT
+  # do sorting of the mask by line num
+  Sorta [M]NBLIG [M]NBLIG Order By [M]LIN(indice)
+  Affzo [M]5
+Return
+
+
+#########################################################################
+##
+#########################################################################
+Subprog INIT_FIELDS(SCRIPT, SCRIPTID)
+  Value Char SCRIPT
+  Value Char SCRIPTID
+  If(SCRIPT <> '')
+    Onerrgo FALLTHROUGH
+    Call INIT_FIELDS(SCRIPTID) From =SCRIPT
+    Onerrgo
+  Endif
+End
+
+
+#########################################################################
+##
+#########################################################################
+Subprog VALIDATE_WRITE(SCRIPT, SCRIPTID)
+  Value Char SCRIPT
+  Value Char SCRIPTID
+  If(SCRIPT <> '')
+    Onerrgo FALLTHROUGH
+    Call VALIDATE_WRITE(SCRIPTID) From =SCRIPT
+    Onerrgo
+  Endif
+End
+
+
+#########################################################################
+##
+#########################################################################
+Subprog POST_LIENS(SCRIPT, SCRIPTID)
+  Value Char SCRIPT
+  Value Char SCRIPTID
+  If(SCRIPT <> '')
+    Onerrgo FALLTHROUGH
+    Call POST_LIENS(SCRIPTID) From =SCRIPT
+    Onerrgo
+  Endif
+End
+
+
+#########################################################################
+##
+#########################################################################
+Subprog POST_CREATE(SCRIPT, SCRIPTID)
+  Value Char SCRIPT
+  Value Char SCRIPTID
+  If(SCRIPT <> '')
+    Onerrgo FALLTHROUGH
+    Call POST_CREATE(SCRIPTID) From =SCRIPT
+    Onerrgo
+  Endif
+End
+
+
+#########################################################################
+##
+#########################################################################
+Subprog POST_DELETE(SCRIPT, SCRIPTID)
+  Value Char SCRIPT
+  Value Char SCRIPTID
+  If(SCRIPT <> '')
+    Onerrgo FALLTHROUGH
+    Call POST_DELETE(SCRIPTID) From =SCRIPT
+    Onerrgo
+  Endif
+End
+
+
+#########################################################################
+## Fallthrough if Subprogs do not exist
+## Errors have to be set with GOK and GMESSAGE aso. in the subprogs itself
+## it would be better to check if subprog exists in script but i dont know how,
+## so this is the only option for now
+#########################################################################
+$FALLTHROUGH
+Resume
+
+
+#########################################################################
+## when any column has been changed we have to set some things for the script
+## to work propper
+#########################################################################
+Subprog APRES_MODIF_DETAIL()
+  Call SETUPDATEFLAG
+End
+
+
+#########################################################################
+## Set updateflag
+#########################################################################
+Subprog SETUPDATEFLAG
+  Local Integer OK
+  OK  = 0
+  OK += (status=6)
+  OK += (status=7)
+  OK += (status>=27 & status<=70)
+  OK += (status>=72 & status<=74)
+  OK += (status>=76 & status<=91)
+  OK += (status>=94 & status<=99)
+  OK += (status >= 1792)
+  If OK : End : Endif
+  If [M]CREFLG(nolign-1) <> 0  : [M]UPDFLG(nolign-1)=1 : Endif
+End
+
