@@ -50,6 +50,7 @@ Subprog MODIF_DETAIL(CRIT, SCRIPT, SCRIPTID)
 
   # we run through the table for the specific criteria (Header PK) and check with "find" if value is in mask
   # if it's not in mask we have to delete the record
+  # There sure is a better approach, but for now i'll stick with this
   For [F] Where evalue(CRIT)
     If !find([F]LIN,[M]LIN(0..[M]NBLIG-1))
       Delete [F]
