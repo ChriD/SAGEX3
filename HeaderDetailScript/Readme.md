@@ -4,10 +4,10 @@ I'm new to SAGE X3 and therfore there might be better solutions so please excuse
 
 #### Info
 To use the script you have to call it from some actions:  
-LIENS       --> Call LIENS_DETAIL('BPRNUM="'+[M:HEADERSCREEN]BPRNUM+'"', 'SPEHEADERSCRIPT', '1') From SPEFWIHEADERDETAIL  
-CREATION    --> Call CREATION_DETAIL('SPEHEADERSCRIPT', '1') From SPEFWIHEADERDETAIL  
-MODIF       --> Call MODIF_DETAIL('BPRNUM="'+[M:HEADERSCREEN]BPRNUM+'"', 'SPEHEADERSCRIPT', '1') From SPEFWIHEADERDETAIL   
-ANNULE      --> Call ANNULE_DETAIL('BPRNUM="'+[M:HEADERSCREEN]BPRNUM+'"', 'SPEHEADERSCRIPT', '1') From SPEFWIHEADERDETAIL  
+LIENS       --> Call LIENS_DETAIL(PARM1, PARM2, PARM3) From SPEFWIHEADERDETAIL  
+CREATION    --> Call CREATION_DETAIL(PARM2, PARM3) From SPEFWIHEADERDETAIL  
+MODIF       --> Call MODIF_DETAIL(PARM1, PARM2, PARM3) From SPEFWIHEADERDETAIL   
+ANNULE      --> Call ANNULE_DETAIL(PARM1, PARM2, PARM3) From SPEFWIHEADERDETAIL  
 APRES_MODIF --> Call APRES_MODIF_DETAIL() From SPEFWIHEADERDETAIL 
 
 due the script uses the default files and masks we have to add  
@@ -16,8 +16,9 @@ Default File [DETAILFILE]
 before each call of a script subprog (see example below)
 
 The Parameters of the subprogs (if they have one) are:
-1 --> the header-detail link (range the detail)
-2 --> the name of a script where the "callback" subprogs are triggered (see callback subprogs)
+PARM1 (char) --> the header-detail link (range the detail)
+PARM2 (char) --> the name of a script where the "callback" subprogs are triggered (see callback subprogs)
+PARM3 (char) -->
 
 #### callback subprogs
 
