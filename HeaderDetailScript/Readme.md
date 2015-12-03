@@ -18,7 +18,8 @@ Default Mask [DETAILSCREEN]
 Default File [DETAILFILE]  
 ```
 before each call of a subprog from the Header-Detail script (see example below)
-And another thing to mention is that the script needs a "LIN" Table Field (line number of detail) and the same standard fields the TABLEAUX Script uses (CREFLG, UPDFLG, NBLIG). Unfortunately, to keep it simple, those fields are not renamable. That means their names are coded in the script. But of course you may adept the script so that they can be variable...
+And another thing to mention is that the script needs a "LIN" Table Field (line number of detail) and the same standard fields the TABLEAUX Script uses (CREFLG, UPDFLG, NBLIG).  
+Unfortunately, to keep it simple, those fields are not renamable. That means their names are coded in the script. But of course you may adept the script so that they can be variable...
 
 The Parameters of the subprogs (if they have one) are:  
 ```
