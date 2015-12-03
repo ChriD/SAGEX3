@@ -18,9 +18,9 @@ before each call of a script subprog (see example below)
 The Parameters of the subprogs (if they have one) are:
 PARM1 (char) --> the header-detail link (range the detail)
 PARM2 (char) --> the name of a script where the "callback" subprogs are triggered (see callback subprogs)
-PARM3 (char) -->
+PARM3 (char) --> a identifier for the callback subprogs (used if you have more than one detail in
 
-#### callback subprogs
+#### Callback subprogs
 
 
 #### Example of using with one detail
@@ -28,6 +28,9 @@ PARM3 (char) -->
 
 
 #### Example of using with two details with a script for each detail 
+
+
+#### Example of using with two details in one script
 
 
 
