@@ -2,6 +2,9 @@
 A script which is like the TABLEAUX script but it works with more than one detail its a little bit different to set up but this is the drawback fousing it with multiple details. Contributions to make it better are very welcome!  
 I'm new to SAGE X3 and therfore there might be better solutions so please excuse my TODO comments and my code :-)
 
+I've created this script because i had to create a module wherer there was one header table and a lots of details shown in tabs.  
+In standard X3 with the TABLEAUX Script you can only have one detail and you have to code the handling of the other details on your own. So i deceided to make a script so i can easily handle a lot of details to one table.
+
 #### Info
 To use the script you have to call it from some actions:  
 ```
