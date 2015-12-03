@@ -61,8 +61,8 @@ $ACTION
 Return
 
 $SET_DEFAULT
-  Default Mask [XEARAMP1]
-  Default File [XEARAIG]
+  Default Mask [DETAILSCREEN]
+  Default File [SETAILFILE]
 Return
 
 Subprog INIT_FIELDS(SCRIPTID)
@@ -71,14 +71,53 @@ Subprog INIT_FIELDS(SCRIPTID)
 End
 
 Funprog GET_PKRANGE()
-End 'BPRNUM="'+[M:XEARAMP0]BPRNUM+'"'
-
+End 'BPRNUM="'+[M:HEADERSCREEN]BPRNUM+'"'
 ```
 
 #### Example of using with two details with a script for each detail 
 
 
 #### Example of using with two details in one script
+```
+# SCRIPT: SPEHEADERSCRIPT
+
+$ACTION
+  Case ACTION
+   When "LIENS"       : Gosub $SET_DEFAULT  : Call LIENS_DETAIL(func GET_PKRANGE(), 'SPEHEADERSCRIPT', '1') From SPEFWIHEADERDETAIL
+                        Gosub $SET_DEFAULT2 : Call LIENS_DETAIL(func GET_PKRANGE2(), 'SPEHEADERSCRIPT', '2') From SPEFWIHEADERDETAIL
+   When "CREATION"    : Gosub $SET_DEFAULT  : Call CREATION_DETAIL('SPEHEADERSCRIPT', '1') From SPEFWIHEADERDETAIL   
+                        Gosub $SET_DEFAULT2 : Call CREATION_DETAIL('SPEHEADERSCRIPT', '2') From SPEFWIHEADERDETAIL
+   When "MODIF"       : Gosub $SET_DEFAULT  : Call MODIF_DETAIL(func GET_PKRANGE(), 'SPEHEADERSCRIPT', '1') From SPEFWIHEADERDETAIL  
+                        Gosub $SET_DEFAULT2 : Call MODIF_DETAIL(func GET_PKRANGE2(), 'SPEHEADERSCRIPT', '2') From SPEFWIHEADERDETAIL
+   When "ANNULE"      : Gosub $SET_DEFAULT  : Call ANNULE_DETAIL(func GET_PKRANGE(), 'SPEHEADERSCRIPT', '1') From SPEFWIHEADERDETAIL 
+                        Gosub $SET_DEFAULT2 : Call ANNULE_DETAIL(func GET_PKRANGE2(), 'SPEHEADERSCRIPT', '2') From SPEFWIHEADERDETAIL 
+   When "APRES_MODIF" : Gosub $SET_DEFAULT  : Call APRES_MODIF_DETAIL() From SPEFWIHEADERDETAIL
+                        Gosub $SET_DEFAULT2 : Call APRES_MODIF_DETAIL() From SPEFWIHEADERDETAIL                       
+   When Default
+  Endcase
+Return
+
+$SET_DEFAULT
+  Default Mask [DETAILSCREEN]
+  Default File [SETAILFILE]
+Return
+
+$SET_DEFAULT2
+  Default Mask [DETAILSCREEN2]
+  Default File [SETAILFILE2]
+Return
+
+Subprog INIT_FIELDS(SCRIPTID)
+  Value Char SCRIPTID
+  [F]BPRNUM = [M:HEADERSCREEN]BPRNUM
+End
+
+Funprog GET_PKRANGE()
+End 'BPRNUM="'+[M:HEADERSCREEN]BPRNUM+'"'
+
+Funprog GET_PKRANGE2()
+End 'BPRNUM="'+[M:HEADERSCREEN]BPRNUM+'"'
+```
 
 
 
